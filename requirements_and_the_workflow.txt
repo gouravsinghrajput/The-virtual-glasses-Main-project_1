@@ -1,0 +1,14 @@
+the requirements for this projects will be:
+
+opencv 
+mediapipe
+numpy
+speech to text, gTTs
+text to speech
+pyaudio
+pygame
+pyttsx3
+
+
+all the features will be written outside the main camera loop, this is to make the code more readable and maintainable.
+
