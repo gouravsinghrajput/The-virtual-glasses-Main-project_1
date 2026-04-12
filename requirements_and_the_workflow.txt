@@ -12,3 +12,4 @@ pyttsx3
 
 all the features will be written outside the main camera loop, this is to make the code more readable and maintainable.
 
+change in the plan, won't be using the tasks and the vision API, module, So will continue with the solutions one, thw task one has a lot of delay and pi won't handle that, solutions is just simply faster, the task is more deep knowleged, but  solutions id something faster, and that is what i want...
