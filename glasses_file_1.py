@@ -51,6 +51,9 @@ options = HandLandmarkerOptions(
 
 
 cap = cv.VideoCapture(0)
+cap.set(cv.CAP_PROP_BUFFERSIZE, 1)
+
+frame_count = 0
 
 with HandLandmarker.create_from_options(options) as landmarker:
     while cap.isOpened():
@@ -61,27 +64,57 @@ with HandLandmarker.create_from_options(options) as landmarker:
 
         frame = cv.flip(frame, 1)
 
-        rgb_frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-
         frame = cv.resize(frame, (700, 500))
 
-        mp_image = mp.Image(
-            image_format = mp.ImageFormat.SRGB,
-            data = rgb_frame)
-        
-        timestamp_ms = int(time.time() * 1000)
+        frame_count +=1
+        if frame_count % 2 == 0:
+            
+            rgb_frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+            
+            mp_image = mp.Image(
+                image_format = mp.ImageFormat.SRGB,
+                data = rgb_frame)
 
-        landmarker.detect_async(mp_image, timestamp_ms)
+            timestamp_ms = int(time.time() * 1000)
+            
+            landmarker.detect_async(mp_image, timestamp_ms)
 
         if latest_result and latest_result.hand_landmarks:
             for hand in latest_result.hand_landmarks:
-                for points in hand:
-                    h, w, _ = frame.shape
-                    cx = int(points.x * w)
-                    cy = int(points.y * h)
+                h, w, _ = frame.shape
+                points = []
+                for point in hand:
+                    cx = int(point.x * w)
+                    cy = int(point.y * h)
+                    points.append((cx, cy))
 
                     cv.circle(frame, (cx, cy), 5, (255, 0, 0), -1)
 
+                connections = [
+
+            # Thumb
+            (0,1), (1,2), (2,3), (3,4),
+
+            # Index
+            (0,5), (5,6), (6,7), (7,8),
+
+            # Middle
+            (0,9), (9,10), (10,11), (11,12),
+
+            # Ring
+            (0,13), (13,14), (14,15), (15,16),
+
+            # Pinky
+            (0,17), (17,18), (18,19), (19,20),
+
+            # Palm connections
+            (5,9), (9,13), (13,17)
+
+        ]      
+                for start, end in connections:
+                    cv.line(frame, points[start], points[end], (0, 255, 0), 2)
+                    
+                     
         cv.imshow('hand tracking', frame)
 
         if cv.waitKey(1) & 0xFF == ord("q"):
