@@ -32,42 +32,62 @@ hands = mp_hands.Hands(
 )
 
 
+recognizer = sr.Recognizer()
+mic = sr.Microphone()
 
-cap = cv.VideoCapture(0)
+wake_word = "come on wake up"
 
 while True:
-    ret, frame = cap.read()
+    with mic as source:
+        print("Listening...")
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
+
+    try:
+        text = recognizer.recognize_google(audio).lower()
+        print("You said:", text)
+
+        if wake_word in text:
+            print("Wake word detected!")
+            
+            # Further code starts here
+            cap = cv.VideoCapture(0)
+
+            while True:
+                ret, frame = cap.read()
 
              
-    frame = cv.flip(frame, 1) 
-    frame = cv.resize(frame, (700, 500)) 
+                frame = cv.flip(frame, 1) 
+                frame = cv.resize(frame, (700, 500)) 
     # frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB) 
 
 
-    results = hands.process(frame)
-    if results.multi_hand_landmarks: 
-        for hand_landmarks in results.multi_hand_landmarks: 
+                results = hands.process(frame)
+                if results.multi_hand_landmarks: 
+                    for hand_landmarks in results.multi_hand_landmarks: 
 
-            h, w, _ = frame.shape 
-            landmark_list = [] 
+                        h, w, _ = frame.shape 
+                        landmark_list = [] 
 
-            for landmark_id in range(21):
-                x = int(hand_landmarks.landmark[landmark_id].x * w)
-                y = int(hand_landmarks.landmark[landmark_id].y * h) 
-                landmark_list.append((x, y)) 
+                        for landmark_id in range(21):
+                            x = int(hand_landmarks.landmark[landmark_id].x * w)
+                            y = int(hand_landmarks.landmark[landmark_id].y * h) 
+                            landmark_list.append((x, y)) 
                 # print(f'Landmark {landmark_id}: ({x}, {y})')
 
             
-            mp_draw.draw_landmarks(frame,
+                        mp_draw.draw_landmarks(frame,
                                    hand_landmarks, 
                                    mp_hands.HAND_CONNECTIONS)
             
     
-    cv.imshow('only hands', frame)
+                cv.imshow('only hands', frame)
 
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        break 
+                if cv.waitKey(1) & 0xFF == ord('q'):
+                    break
 
-cap.release()
-cv.destroyAllWindows()
+            cap.release()
+            cv.destroyAllWindows()
 
+    except:
+        pass
