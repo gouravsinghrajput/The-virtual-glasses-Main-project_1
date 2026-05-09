@@ -18,7 +18,7 @@ import threading
 # import pvporcupine as pv 
 import sounddevice as sd
 # import struct
-import pyaudio as pa 
+import pyaudio as pa
 
 
 
@@ -35,7 +35,7 @@ hands = mp_hands.Hands(
 recognizer = sr.Recognizer()
 mic = sr.Microphone()
 
-wake_word = "come on wake up"
+wake_word = "wake up"
 
 while True:
     with mic as source:
